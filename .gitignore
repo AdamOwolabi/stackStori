@@ -70,3 +70,4 @@ jspm_packages/
 
 # Nuxt.js build output
 .nuxt
+.env
