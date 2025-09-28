@@ -103,7 +103,9 @@ const StackStori = () => {
           <div className="mt-12 text-gray-300 text-2xl leading-relaxed">
             Make financial choices.<br/>
             Build generational wealth.<br/>
-            Don't go broke.
+            <div>
+              Don&apos;t go broke.
+            </div>
           </div>
         </div>
 

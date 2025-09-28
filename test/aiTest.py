@@ -7,7 +7,7 @@ load_dotenv()
 
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
-    raise ValueError("⚠️ No GEMINI_API_KEY found. Add it to your .env or environment variables.")
+    raise ValueError("No GEMINI_API_KEY found. Add it to your .env or environment variables.")
 
 genai.configure(api_key=api_key)
 
@@ -19,7 +19,7 @@ model = genai.GenerativeModel(
 
 try:
     response = model.generate_content("Hello Gemini! Can you confirm you're working?")
-    print("✅ Gemini response:")
+    print("Gemini response:")
     print(response.text)
 except Exception as e:
-    print("❌ Error calling Gemini API:", e)
+    print("Error calling Gemini API:", e)
