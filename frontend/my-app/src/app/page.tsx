@@ -1,103 +1,175 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
+
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+}
+
+const StackStori = () => {
+  const [glitchActive, setGlitchActive] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  const router = useRouter(); // ✅ hook at top of component
+
+  useEffect(() => {
+    // Glitch effect
+    const glitchInterval = setInterval(() => {
+      setGlitchActive(true);
+      setTimeout(() => setGlitchActive(false), 150);
+    }, 4000);
+
+    // Mouse tracking
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ 
+        x: e.clientX - window.innerWidth / 2,
+        y: e.clientY - window.innerHeight / 2
+      });
+    };
+
+    // Particle system
+    const createParticles = () => {
+      const newParticles: Particle[] = [];
+      for (let i = 0; i < 40; i++) {
+        newParticles.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          size: Math.random() * 3 + 1,
+          opacity: Math.random() * 0.5 + 0.1
+        });
+      }
+      setParticles(newParticles);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    createParticles();
+
+    return () => {
+      clearInterval(glitchInterval);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-black text-white overflow-hidden relative font-mono flex items-center justify-center">
+      
+      {/* Particle Canvas Background */}
+      <div className="absolute inset-0">
+        {particles.map((particle, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-green-400 rounded-full animate-pulse"
+            style={{
+              left: `${particle.x + mousePos.x * 0.01}px`,
+              top: `${particle.y + mousePos.y * 0.01}px`,
+              opacity: particle.opacity,
+              transform: `scale(${particle.size})`
+            }}
+          />
+        ))}
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Brutalist Grid Overlay */}
+      <div 
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: `
+            linear-gradient(90deg, #00ff00 1px, transparent 1px),
+            linear-gradient(0deg, #00ff00 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
+          transform: `translate(${mousePos.x * 0.05}px, ${mousePos.y * 0.05}px)`
+        }}
+      />
+
+      {/* Main Landing Content */}
+      <div className="relative z-10 max-w-4xl w-full mx-auto p-8">
+        
+        {/* Header */}
+        <div className="mb-20 text-center">
+          <div className={`text-8xl font-black mb-6 ${glitchActive ? 'animate-pulse text-red-500' : 'text-green-400'}`}>
+            STACK-STORY
+          </div>
+          <div className="text-lg text-gray-400 tracking-[0.4em] uppercase mb-6">
+            FINANCIAL_LIFE_SIMULATOR
+          </div>
+          <div className="w-32 h-1 bg-green-400 mx-auto"></div>
+          
+          <div className="mt-12 text-gray-300 text-2xl leading-relaxed">
+            Make financial choices.<br/>
+            Build generational wealth.<br/>
+            Don't go broke.
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-8 mb-16">
+          <div className="border-l-4 border-yellow-400 pl-8 bg-gray-900/30 p-6">
+            <div className="text-sm text-gray-400 uppercase tracking-wide mb-2">ACTIVE_PLAYERS</div>
+            <div className="text-4xl font-bold text-yellow-400">2,847</div>
+          </div>
+          <div className="border-l-4 border-blue-400 pl-8 bg-gray-900/30 p-6">
+            <div className="text-sm text-gray-400 uppercase tracking-wide mb-2">LIFE_SCENARIOS</div>
+            <div className="text-4xl font-bold text-blue-400">523</div>
+          </div>
+          <div className="border-l-4 border-red-400 pl-8 bg-gray-900/30 p-6">
+            <div className="text-sm text-gray-400 uppercase tracking-wide mb-2">HIGHEST_NET_WORTH</div>
+            <div className="text-4xl font-bold text-red-400">$10.0M</div>
+          </div>
+        </div>
+
+        {/* Main CTA */}
+        <div className="text-center mb-16">
+          <button onClick={() => router.push('/game-views/createprofile-views')} className="bg-green-400 text-black px-24 py-8 text-3xl font-black uppercase tracking-wider hover:bg-yellow-400 transition-colors duration-200 border-4 border-black shadow-[12px_12px_0px_0px_#000000] hover:shadow-[6px_6px_0px_0px_#000000] hover:translate-x-1 hover:translate-y-1">
+            START_SIMULATION
+          </button>
+        </div>
+
+        {/* Secondary Actions */}
+        <div className="grid grid-cols-2 gap-8 mb-16 max-w-2xl mx-auto">
+          <button className="bg-black border-2 border-white text-white px-8 py-4 text-lg font-bold uppercase tracking-wide hover:bg-white hover:text-black transition-all duration-200">
+            LEADERBOARD
+          </button>
+          <button className="bg-black border-2 border-gray-600 text-gray-400 px-8 py-4 text-lg font-bold uppercase tracking-wide hover:border-white hover:text-white transition-all duration-200">
+            HOW_TO_PLAY
+          </button>
+        </div>
+
+        {/* Tech Stack */}
+        <div className="text-center mb-8">
+          <div className="text-gray-500 mb-4 text-sm uppercase tracking-wide">POWERED_BY:</div>
+          <div className="grid grid-cols-4 gap-4 max-w-2xl mx-auto">
+            <div className="bg-gray-800 p-4 text-center text-green-400 text-sm font-bold">REACT</div>
+            <div className="bg-gray-800 p-4 text-center text-blue-400 text-sm font-bold">FASTAPI</div>
+            <div className="bg-gray-800 p-4 text-center text-yellow-400 text-sm font-bold">GEMINI</div>
+            <div className="bg-gray-800 p-4 text-center text-purple-400 text-sm font-bold">SUPABASE</div>
+          </div>
+        </div>
+
+        {/* Credits */}
+        <div className="text-center text-sm text-gray-600">
+          <div className="mb-3">UMBC_HACKATHON_2025</div>
+          <div className="text-xs text-gray-700">
+            SAMUEL_BAJUS • ADAM_OWOLABI • T12312433
+          </div>
+        </div>
+      </div>
+
+      {/* Glitch Effects */}
+      {glitchActive && (
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="w-full h-full bg-red-500 opacity-10 animate-pulse"></div>
+          <div className="absolute top-1/3 left-0 w-full h-1 bg-red-400 animate-pulse"></div>
+          <div className="absolute top-2/3 left-0 w-full h-1 bg-green-400 animate-pulse"></div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default StackStori;
